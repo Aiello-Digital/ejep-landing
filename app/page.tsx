@@ -140,15 +140,13 @@ export default function Home() {
       {/* FOOTER */}
       <footer className="site-footer">
         <div className="footer-inner">
-          <div className="footer-logo-wrap">
-            <Image
-              src="/logo-ejep.png"
-              alt="EJEP"
-              width={80}
-              height={36}
-              style={{ height: "36px", width: "auto", display: "block" }}
-            />
-          </div>
+          <Image
+            src="/logo-ejep.png"
+            alt="EJEP"
+            width={80}
+            height={36}
+            style={{ height: "36px", width: "auto", filter: "brightness(0) invert(1)" }}
+          />
           <p className="footer-meta">© 2026 EJEP. Todos os direitos reservados.</p>
           <p className="footer-address">UFSC · Trindade, Florianópolis · SC</p>
         </div>

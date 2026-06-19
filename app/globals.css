@@ -63,8 +63,7 @@ body {
 }
 @media (max-width: 768px) { .header-inner { padding: 14px 20px; } }
 
-.logo-img { height: 60px; width: auto; display: block; mix-blend-mode: multiply; }
-.footer-logo-wrap { background: #fff; padding: 4px 10px; display: inline-flex; align-items: center; }
+.logo-img { height: 60px; width: auto; display: block; }
 
 .header-cta {
   font-family: var(--font-body), sans-serif;
