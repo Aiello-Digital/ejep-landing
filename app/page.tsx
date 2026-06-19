@@ -11,9 +11,9 @@ export default function Home() {
           <Image
             src="/logo-ejep.png"
             alt="EJEP"
-            width={120}
-            height={48}
-            style={{ height: "48px", width: "auto" }}
+            width={160}
+            height={64}
+            style={{ height: "60px", width: "auto" }}
             priority
           />
           <a href="#sobre" className="header-cta">Como funciona</a>

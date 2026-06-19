@@ -359,7 +359,7 @@ export default function Quiz() {
           position: absolute;
           top: 14px; left: 16px;
           background: none; border: none;
-          color: #5a3333;
+          color: #9a7070;
           font-size: 12px;
           font-family: var(--font-body), sans-serif;
           letter-spacing: 0.06em;
@@ -376,7 +376,7 @@ export default function Quiz() {
           font-family: var(--font-mono), monospace;
           font-size: 11px;
           letter-spacing: 0.16em;
-          color: #5a2020;
+          color: #9a6060;
         }
 
         .qz-question {
@@ -391,7 +391,7 @@ export default function Quiz() {
 
         .qz-hint {
           font-size: 14px;
-          color: #7a5050;
+          color: #b09090;
           line-height: 1.65;
           font-family: var(--font-body), sans-serif;
           font-weight: 300;
@@ -417,7 +417,7 @@ export default function Quiz() {
         .qz-opt-ghost {
           padding: 16px 20px;
           background: transparent;
-          color: #9a7878;
+          color: #c4a4a4;
           border: 1px solid rgba(255,255,255,0.07);
           font-family: var(--font-body), sans-serif;
           font-size: 14px;
@@ -431,7 +431,7 @@ export default function Quiz() {
         .qz-opt-revenue {
           padding: 15px 20px;
           background: transparent;
-          color: #9a7878;
+          color: #c4a4a4;
           border: 1px solid rgba(255,255,255,0.07);
           font-family: var(--font-body), sans-serif;
           font-size: 14px;
@@ -460,7 +460,7 @@ export default function Quiz() {
           border-radius: 0;
           -webkit-appearance: none;
         }
-        .qz-input::placeholder { color: #4a2828; }
+        .qz-input::placeholder { color: #7a5858; }
         .qz-input:focus { border-color: rgba(192,24,24,0.5); }
 
         .qz-error {
@@ -490,7 +490,7 @@ export default function Quiz() {
 
         .qz-btn-sec {
           background: transparent;
-          color: #7a5050;
+          color: #b09090;
           border: 1px solid rgba(255,255,255,0.07);
           padding: 14px 24px;
           font-family: var(--font-body), sans-serif;
@@ -518,13 +518,13 @@ export default function Quiz() {
           font-size: 11px;
           letter-spacing: 0.12em;
           text-transform: uppercase;
-          color: #4a2828;
+          color: #8a6060;
           font-family: var(--font-mono), monospace;
           flex-shrink: 0;
         }
         .qz-summary-val {
           font-size: 13px;
-          color: #9a7878;
+          color: #c4a4a4;
           font-family: var(--font-body), sans-serif;
           text-align: right;
         }
@@ -533,7 +533,7 @@ export default function Quiz() {
           display: block;
           text-align: center;
           background: transparent;
-          color: #9a7878;
+          color: #c4a4a4;
           border: 1px solid rgba(255,255,255,0.08);
           padding: 14px 24px;
           font-family: var(--font-body), sans-serif;
