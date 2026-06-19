@@ -14,14 +14,17 @@
   --text:     #f5ecec;
   --text-2:   #c4a4a4;
   --text-3:   #9a7878;
-  --font-display: var(--font-display);
-  --font-body:    var(--font-body);
-  --font-mono:    var(--font-mono);
+  /* --font-* variables are injected by next/font via html className */
 }
 
 /* ── RESET ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .anim-1, .anim-2, .anim-3, .anim-4 { animation: none; opacity: 1; transform: none; }
+  .eyebrow-line { animation: none; transform: scaleX(1); }
+}
 body {
   background: var(--bg);
   color: var(--text);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { WHATSAPP_URL } from "@/lib/constants";
 
 type Step =
   | "q1_has_company"
@@ -87,13 +88,25 @@ export default function Quiz() {
   }, []);
 
   useEffect(() => {
-    // focus input when step changes
-    setTimeout(() => inputRef.current?.focus(), 80);
+    const t = setTimeout(() => inputRef.current?.focus(), 80);
+    return () => clearTimeout(t);
   }, [step]);
+
+  const STEP_FIELD: Partial<Record<Step, keyof FormData>> = {
+    q2_company_name:  "companyName",
+    q4_contact_name:  "contactName",
+    q5_email:         "email",
+    q6_phone:         "phone",
+  };
 
   function goBack() {
     const idx = STEP_ORDER.indexOf(step);
-    if (idx > 0) { setStep(STEP_ORDER[idx - 1]); setError(""); setInputValue(""); }
+    if (idx <= 0) return;
+    const prevStep = STEP_ORDER[idx - 1];
+    const prevField = STEP_FIELD[prevStep];
+    setStep(prevStep);
+    setError("");
+    setInputValue(prevField ? (formData[prevField] as string) : "");
   }
 
   function handleYesNo(value: "sim" | "nao") {
@@ -131,12 +144,17 @@ export default function Quiz() {
     setError("");
     setLoading(true);
     try {
-      await fetch("/api/submit", {
+      const res = await fetch("/api/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(finalData),
       });
-    } catch { /* continua */ }
+      if (!res.ok) throw new Error("server_error");
+    } catch {
+      setLoading(false);
+      setError("Erro ao enviar. Tente novamente ou entre em contato pelo WhatsApp.");
+      return;
+    }
     setLoading(false);
     setInputValue("");
     setStep("success");
@@ -324,7 +342,7 @@ export default function Quiz() {
               </div>
             </div>
             <a
-              href={`https://wa.me/5548985020217?text=Ol%C3%A1%2C%20preenchi%20o%20formul%C3%A1rio%20da%20EJEP%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es.`}
+              href={`${WHATSAPP_URL}?text=Ol%C3%A1%2C%20preenchi%20o%20formul%C3%A1rio%20da%20EJEP%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es.`}
               target="_blank"
               rel="noopener noreferrer"
               className="qz-whatsapp"
