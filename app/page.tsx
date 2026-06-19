@@ -9,7 +9,7 @@ export default function Home() {
       <header className="site-header">
         <div className="header-inner">
           <Image
-            src="/logo-ejep.png"
+            src="/EJEP%20TRUE%20LOGO.png"
             alt="EJEP"
             width={160}
             height={64}
@@ -141,7 +141,7 @@ export default function Home() {
       <footer className="site-footer">
         <div className="footer-inner">
           <Image
-            src="/logo-ejep.png"
+            src="/EJEP%20TRUE%20LOGO.png"
             alt="EJEP"
             width={80}
             height={36}
