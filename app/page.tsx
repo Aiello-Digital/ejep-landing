@@ -146,7 +146,7 @@ export default function Home() {
             width={80}
             height={36}
             className="footer-logo"
-            style={{ filter: "brightness(0) invert(1)", height: "36px", width: "auto" }}
+            style={{ height: "36px", width: "auto" }}
           />
           <p className="footer-meta">© 2026 EJEP. Todos os direitos reservados.</p>
           <p className="footer-address">UFSC · Trindade, Florianópolis · SC</p>

@@ -49,8 +49,8 @@ body {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
-  background: #ffffff;
-  border-bottom: 1px solid #f0e8e8;
+  background: #0a0208;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
   padding: 0;
 }
 .header-inner {
@@ -63,7 +63,7 @@ body {
 }
 @media (max-width: 768px) { .header-inner { padding: 14px 20px; } }
 
-.logo-img { height: 48px; width: auto; display: block; }
+.logo-img { height: 60px; width: auto; display: block; }
 
 .header-cta {
   font-family: var(--font-body), sans-serif;
@@ -71,13 +71,13 @@ body {
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #400505;
+  color: #c4a4a4;
   text-decoration: none;
-  border: 1px solid rgba(64,5,5,0.25);
+  border: 1px solid rgba(255,255,255,0.12);
   padding: 9px 20px;
   transition: background 0.2s, color 0.2s;
 }
-.header-cta:hover { background: #400505; color: #fff; }
+.header-cta:hover { background: rgba(255,255,255,0.05); color: #f5ecec; }
 
 /* ── HERO ── */
 .hero {

@@ -32,8 +32,16 @@ const REVENUE_OPTIONS = [
   { value: "acima_500k", label: "Acima de R$ 500.000" },
 ];
 
-// Brazilian phone: accepts (11) 91234-5678, 11912345678, 1134567890, etc.
-const BR_PHONE_RE = /^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$/;
+const BR_PHONE_RE = /^\(\d{2}\) \d{4,5}-\d{4}$/;
+
+function formatPhone(raw: string): string {
+  const digits = raw.replace(/\D/g, "").slice(0, 11);
+  if (digits.length === 0) return "";
+  if (digits.length <= 2) return `(${digits}`;
+  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
 
 const STEP_ORDER: Step[] = [
   "q1_has_company",
@@ -115,7 +123,7 @@ export default function Quiz() {
   async function handlePhoneNext() {
     if (!inputValue.trim()) { setError("Campo obrigatório."); return; }
     const clean = inputValue.replace(/\D/g, "");
-    if (!BR_PHONE_RE.test(inputValue) || clean.length < 10 || clean.length > 11) {
+    if (!BR_PHONE_RE.test(inputValue) || clean.length < 10) {
       setError("Telefone inválido. Ex: (48) 99999-9999"); return;
     }
     const finalData = { ...formData, phone: inputValue.trim() };
@@ -281,7 +289,8 @@ export default function Quiz() {
               type="tel"
               placeholder="(48) 99999-9999"
               value={inputValue}
-              onChange={(e) => { setInputValue(e.target.value); setError(""); }}
+              maxLength={15}
+              onChange={(e) => { setInputValue(formatPhone(e.target.value)); setError(""); }}
               onKeyDown={(e) => e.key === "Enter" && handlePhoneNext()}
             />
             {error && <p className="qz-error">{error}</p>}
