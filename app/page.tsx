@@ -13,7 +13,7 @@ export default function Home() {
             alt="EJEP"
             width={160}
             height={64}
-            style={{ height: "60px", width: "auto" }}
+            className="logo-img"
             priority
           />
           <a href="#sobre" className="header-cta">Como funciona</a>
@@ -140,14 +140,15 @@ export default function Home() {
       {/* FOOTER */}
       <footer className="site-footer">
         <div className="footer-inner">
-          <Image
-            src="/logo-ejep.png"
-            alt="EJEP"
-            width={80}
-            height={36}
-            className="footer-logo"
-            style={{ height: "36px", width: "auto" }}
-          />
+          <div className="footer-logo-wrap">
+            <Image
+              src="/logo-ejep.png"
+              alt="EJEP"
+              width={80}
+              height={36}
+              style={{ height: "36px", width: "auto", display: "block" }}
+            />
+          </div>
           <p className="footer-meta">© 2026 EJEP. Todos os direitos reservados.</p>
           <p className="footer-address">UFSC · Trindade, Florianópolis · SC</p>
         </div>
