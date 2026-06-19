@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 type Step =
   | "q1_has_company"
@@ -26,24 +26,14 @@ interface FormData {
 }
 
 const REVENUE_OPTIONS = [
-  { value: "ate_50k", label: "Até R$ 50.000" },
-  { value: "50k_200k", label: "R$ 50.000 – R$ 200.000" },
-  { value: "200k_500k", label: "R$ 200.000 – R$ 500.000" },
+  { value: "ate_50k",     label: "Até R$ 50.000" },
+  { value: "50k_200k",   label: "R$ 50.000 – R$ 200.000" },
+  { value: "200k_500k",  label: "R$ 200.000 – R$ 500.000" },
   { value: "acima_500k", label: "Acima de R$ 500.000" },
 ];
 
-const ZAPIER_WEBHOOK = process.env.NEXT_PUBLIC_ZAPIER_WEBHOOK_URL || "";
-
-function getUtmParams(): Partial<FormData> {
-  if (typeof window === "undefined") return {};
-  const params = new URLSearchParams(window.location.search);
-  return {
-    utm_source: params.get("utm_source") || "",
-    utm_medium: params.get("utm_medium") || "",
-    utm_campaign: params.get("utm_campaign") || "",
-    utm_term: params.get("utm_term") || "",
-  };
-}
+// Brazilian phone: accepts (11) 91234-5678, 11912345678, 1134567890, etc.
+const BR_PHONE_RE = /^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$/;
 
 const STEP_ORDER: Step[] = [
   "q1_has_company",
@@ -61,106 +51,84 @@ function getProgress(step: Step): number {
   return Math.round((idx / (STEP_ORDER.length - 1)) * 100);
 }
 
+function getUtmParams() {
+  if (typeof window === "undefined") return {};
+  const p = new URLSearchParams(window.location.search);
+  return {
+    utm_source:   p.get("utm_source")   || "",
+    utm_medium:   p.get("utm_medium")   || "",
+    utm_campaign: p.get("utm_campaign") || "",
+    utm_term:     p.get("utm_term")     || "",
+  };
+}
+
 export default function Quiz() {
-  const [step, setStep] = useState<Step>("q1_has_company");
+  const [step, setStep]         = useState<Step>("q1_has_company");
   const [formData, setFormData] = useState<FormData>({
-    hasCompany: "",
-    companyName: "",
-    revenue: "",
-    contactName: "",
-    email: "",
-    phone: "",
-    utm_source: "",
-    utm_medium: "",
-    utm_campaign: "",
-    utm_term: "",
+    hasCompany: "", companyName: "", revenue: "",
+    contactName: "", email: "", phone: "",
+    utm_source: "", utm_medium: "", utm_campaign: "", utm_term: "",
   });
   const [inputValue, setInputValue] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading]       = useState(false);
+  const [error, setError]           = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const utms = getUtmParams();
-    setFormData((prev) => ({ ...prev, ...utms }));
+    setFormData((p) => ({ ...p, ...getUtmParams() }));
   }, []);
 
+  useEffect(() => {
+    // focus input when step changes
+    setTimeout(() => inputRef.current?.focus(), 80);
+  }, [step]);
+
   function goBack() {
-    const currentIdx = STEP_ORDER.indexOf(step);
-    if (currentIdx > 0) {
-      setStep(STEP_ORDER[currentIdx - 1]);
-      setError("");
-      setInputValue("");
-    }
+    const idx = STEP_ORDER.indexOf(step);
+    if (idx > 0) { setStep(STEP_ORDER[idx - 1]); setError(""); setInputValue(""); }
   }
 
   function handleYesNo(value: "sim" | "nao") {
     if (value === "nao") {
-      setFormData((prev) => ({ ...prev, hasCompany: "nao" }));
+      setFormData((p) => ({ ...p, hasCompany: "nao" }));
       setStep("q1_disqualified");
     } else {
-      setFormData((prev) => ({ ...prev, hasCompany: "sim" }));
+      setFormData((p) => ({ ...p, hasCompany: "sim" }));
       setStep("q2_company_name");
     }
   }
 
   function handleRevenue(value: string) {
-    setFormData((prev) => ({ ...prev, revenue: value }));
+    setFormData((p) => ({ ...p, revenue: value }));
     setStep("q4_contact_name");
   }
 
-  function handleTextNext(field: keyof FormData, nextStep: Step) {
-    if (!inputValue.trim()) {
-      setError("Este campo é obrigatório.");
-      return;
-    }
+  function handleTextNext(field: keyof FormData, next: Step) {
+    if (!inputValue.trim()) { setError("Campo obrigatório."); return; }
     if (field === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inputValue)) {
-      setError("Informe um e-mail válido.");
-      return;
+      setError("Informe um e-mail válido."); return;
     }
-    setFormData((prev) => ({ ...prev, [field]: inputValue.trim() }));
-    setInputValue("");
-    setError("");
-    setStep(nextStep);
+    setFormData((p) => ({ ...p, [field]: inputValue.trim() }));
+    setInputValue(""); setError(""); setStep(next);
   }
 
   async function handlePhoneNext() {
-    if (!inputValue.trim()) {
-      setError("Este campo é obrigatório.");
-      return;
-    }
-    const phoneClean = inputValue.replace(/\D/g, "");
-    if (phoneClean.length < 10) {
-      setError("Informe um telefone válido com DDD.");
-      return;
+    if (!inputValue.trim()) { setError("Campo obrigatório."); return; }
+    const clean = inputValue.replace(/\D/g, "");
+    if (!BR_PHONE_RE.test(inputValue) || clean.length < 10 || clean.length > 11) {
+      setError("Telefone inválido. Ex: (48) 99999-9999"); return;
     }
     const finalData = { ...formData, phone: inputValue.trim() };
     setFormData(finalData);
     setError("");
     setLoading(true);
-
     try {
-      if (ZAPIER_WEBHOOK) {
-        await fetch(ZAPIER_WEBHOOK, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            empresa: finalData.companyName,
-            faturamento: finalData.revenue,
-            nome: finalData.contactName,
-            email: finalData.email,
-            telefone: finalData.phone,
-            utm_source: finalData.utm_source,
-            utm_medium: finalData.utm_medium,
-            utm_campaign: finalData.utm_campaign,
-            utm_term: finalData.utm_term,
-            data: new Date().toISOString(),
-          }),
-        });
-      }
-    } catch {
-      // silently continue
-    }
-
+      await fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(finalData),
+      });
+    } catch { /* continua */ }
     setLoading(false);
     setInputValue("");
     setStep("success");
@@ -172,107 +140,87 @@ export default function Quiz() {
     step !== "q1_disqualified" &&
     step !== "success";
 
+  const showProgress =
+    step !== "q1_disqualified" && step !== "success";
+
   return (
-    <div className="quiz-wrapper">
-      {/* Progress bar */}
-      {step !== "q1_disqualified" && step !== "success" && (
-        <div className="progress-bar-container">
-          <div
-            className="progress-bar-fill"
-            style={{ width: `${progress}%` }}
-          />
+    <div className="qz-wrap">
+      {/* Progress */}
+      {showProgress && (
+        <div className="qz-progress">
+          <div className="qz-progress-fill" style={{ width: `${progress}%` }} />
         </div>
       )}
 
-      <div className="quiz-card animate-fade-in-up" key={step}>
-        {/* Back button */}
+      <div className="qz-card" key={step}>
         {showBack && (
-          <button className="back-btn" onClick={goBack} type="button">
-            ← Voltar
+          <button className="qz-back" onClick={goBack} type="button">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M9 2L4 7L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Voltar
           </button>
         )}
 
         {/* Q1 */}
         {step === "q1_has_company" && (
-          <div className="quiz-step">
-            <span className="step-label">Pergunta 1 de 6</span>
-            <h2 className="quiz-question">
-              Você possui uma empresa ativa no momento?
-            </h2>
-            <p className="quiz-sub">Isso nos ajuda a entender como podemos te ajudar da melhor forma.</p>
-            <div className="option-row">
-              <button className="option-btn primary" onClick={() => handleYesNo("sim")}>
-                ✓ Sim, tenho uma empresa
-              </button>
-              <button className="option-btn secondary" onClick={() => handleYesNo("nao")}>
-                Não, ainda não
-              </button>
+          <div className="qz-step">
+            <div className="qz-counter">01 / 06</div>
+            <h3 className="qz-question">Você possui uma empresa?</h3>
+            <div className="qz-options-col">
+              <button className="qz-opt-primary" onClick={() => handleYesNo("sim")}>Sim</button>
+              <button className="qz-opt-ghost"   onClick={() => handleYesNo("nao")}>Não</button>
             </div>
           </div>
         )}
 
         {/* Disqualified */}
         {step === "q1_disqualified" && (
-          <div className="quiz-step text-center">
-            <div className="disqualified-icon">🙏</div>
-            <h2 className="quiz-question">Obrigado pelo seu interesse!</h2>
-            <p className="quiz-sub">
-              Nossa consultoria é focada em empresas que já estão operando e buscam otimizar seus processos e escalar com mais controle.{" "}
-              <strong>No momento, não conseguiremos te atender da melhor forma.</strong>
+          <div className="qz-step">
+            <h3 className="qz-question">Obrigado pelo interesse.</h3>
+            <p className="qz-hint">
+              Nossa consultoria é voltada para empresas em operação que buscam
+              otimizar processos e escalar com controle. No momento, não conseguimos
+              oferecer o melhor atendimento para seu perfil.
             </p>
-            <p className="quiz-sub" style={{ marginTop: "12px" }}>
-              Mas não desanime — quando você tiver sua empresa rodando, estaremos prontos para te ajudar a crescer com estratégia.
+            <p className="qz-hint" style={{ marginTop: 8 }}>
+              Quando sua empresa estiver ativa, estaremos prontos para ajudar.
             </p>
-            <button
-              className="btn-primary"
-              style={{ marginTop: "24px" }}
-              onClick={() => setStep("q1_has_company")}
-            >
-              Recomeçar
+            <button className="qz-btn-sec" onClick={() => setStep("q1_has_company")}>
+              Voltar ao início
             </button>
           </div>
         )}
 
         {/* Q2 */}
         {step === "q2_company_name" && (
-          <div className="quiz-step">
-            <span className="step-label">Pergunta 2 de 6</span>
-            <h2 className="quiz-question">Qual é o nome da sua empresa?</h2>
+          <div className="qz-step">
+            <div className="qz-counter">02 / 06</div>
+            <h3 className="qz-question">Nome da empresa</h3>
             <input
-              className="quiz-input"
+              ref={inputRef}
+              className="qz-input"
               type="text"
-              placeholder="Ex: Tech Solutions Ltda"
+              placeholder="Ex: Acme Indústrias"
               value={inputValue}
               onChange={(e) => { setInputValue(e.target.value); setError(""); }}
               onKeyDown={(e) => e.key === "Enter" && handleTextNext("companyName", "q3_revenue")}
-              autoFocus
             />
-            {error && <p className="error-msg">{error}</p>}
-            <button
-              className="btn-primary"
-              onClick={() => handleTextNext("companyName", "q3_revenue")}
-            >
-              Continuar →
+            {error && <p className="qz-error">{error}</p>}
+            <button className="qz-btn-primary" onClick={() => handleTextNext("companyName", "q3_revenue")}>
+              Continuar
             </button>
           </div>
         )}
 
         {/* Q3 */}
         {step === "q3_revenue" && (
-          <div className="quiz-step">
-            <span className="step-label">Pergunta 3 de 6</span>
-            <h2 className="quiz-question">
-              Qual é o faturamento mensal aproximado da{" "}
-              {formData.companyName || "sua empresa"}?
-            </h2>
-            <p className="quiz-sub">Selecione a faixa que melhor representa sua realidade atual.</p>
-            <div className="revenue-options">
+          <div className="qz-step">
+            <div className="qz-counter">03 / 06</div>
+            <h3 className="qz-question">Faturamento mensal</h3>
+            <div className="qz-options-col">
               {REVENUE_OPTIONS.map((opt) => (
-                <button
-                  key={opt.value}
-                  className="revenue-btn"
-                  onClick={() => handleRevenue(opt.value)}
-                >
+                <button key={opt.value} className="qz-opt-revenue" onClick={() => handleRevenue(opt.value)}>
                   {opt.label}
                 </button>
               ))}
@@ -282,282 +230,320 @@ export default function Quiz() {
 
         {/* Q4 */}
         {step === "q4_contact_name" && (
-          <div className="quiz-step">
-            <span className="step-label">Pergunta 4 de 6</span>
-            <h2 className="quiz-question">Qual é o seu nome?</h2>
+          <div className="qz-step">
+            <div className="qz-counter">04 / 06</div>
+            <h3 className="qz-question">Seu nome</h3>
             <input
-              className="quiz-input"
+              ref={inputRef}
+              className="qz-input"
               type="text"
-              placeholder="Seu nome completo"
+              placeholder="Nome completo"
               value={inputValue}
               onChange={(e) => { setInputValue(e.target.value); setError(""); }}
               onKeyDown={(e) => e.key === "Enter" && handleTextNext("contactName", "q5_email")}
-              autoFocus
             />
-            {error && <p className="error-msg">{error}</p>}
-            <button
-              className="btn-primary"
-              onClick={() => handleTextNext("contactName", "q5_email")}
-            >
-              Continuar →
+            {error && <p className="qz-error">{error}</p>}
+            <button className="qz-btn-primary" onClick={() => handleTextNext("contactName", "q5_email")}>
+              Continuar
             </button>
           </div>
         )}
 
         {/* Q5 */}
         {step === "q5_email" && (
-          <div className="quiz-step">
-            <span className="step-label">Pergunta 5 de 6</span>
-            <h2 className="quiz-question">Qual é o seu melhor e-mail?</h2>
-            <p className="quiz-sub">Enviaremos o resultado do seu diagnóstico por aqui.</p>
+          <div className="qz-step">
+            <div className="qz-counter">05 / 06</div>
+            <h3 className="qz-question">Seu e-mail</h3>
             <input
-              className="quiz-input"
+              ref={inputRef}
+              className="qz-input"
               type="email"
-              placeholder="voce@suaempresa.com.br"
+              placeholder="voce@empresa.com.br"
               value={inputValue}
               onChange={(e) => { setInputValue(e.target.value); setError(""); }}
               onKeyDown={(e) => e.key === "Enter" && handleTextNext("email", "q6_phone")}
-              autoFocus
             />
-            {error && <p className="error-msg">{error}</p>}
-            <button
-              className="btn-primary"
-              onClick={() => handleTextNext("email", "q6_phone")}
-            >
-              Continuar →
+            {error && <p className="qz-error">{error}</p>}
+            <button className="qz-btn-primary" onClick={() => handleTextNext("email", "q6_phone")}>
+              Continuar
             </button>
           </div>
         )}
 
         {/* Q6 */}
         {step === "q6_phone" && (
-          <div className="quiz-step">
-            <span className="step-label">Pergunta 6 de 6</span>
-            <h2 className="quiz-question">Qual é o seu WhatsApp?</h2>
-            <p className="quiz-sub">Nosso time entrará em contato para agendar seu diagnóstico gratuito.</p>
+          <div className="qz-step">
+            <div className="qz-counter">06 / 06</div>
+            <h3 className="qz-question">WhatsApp com DDD</h3>
             <input
-              className="quiz-input"
+              ref={inputRef}
+              className="qz-input"
               type="tel"
-              placeholder="(48) 9 9999-9999"
+              placeholder="(48) 99999-9999"
               value={inputValue}
               onChange={(e) => { setInputValue(e.target.value); setError(""); }}
               onKeyDown={(e) => e.key === "Enter" && handlePhoneNext()}
-              autoFocus
             />
-            {error && <p className="error-msg">{error}</p>}
-            <button
-              className="btn-primary"
-              onClick={handlePhoneNext}
-              disabled={loading}
-            >
-              {loading ? "Enviando..." : "Quero meu diagnóstico gratuito →"}
+            {error && <p className="qz-error">{error}</p>}
+            <button className="qz-btn-primary" onClick={handlePhoneNext} disabled={loading}>
+              {loading ? "Enviando..." : "Solicitar diagnóstico gratuito"}
             </button>
           </div>
         )}
 
         {/* Success */}
         {step === "success" && (
-          <div className="quiz-step text-center">
-            <div className="success-icon">🎯</div>
-            <h2 className="quiz-question">
-              Perfeito, {formData.contactName}!
-            </h2>
-            <p className="quiz-sub">
-              Recebemos suas informações. Nossa equipe entrará em contato em{" "}
-              <strong>até 24 horas úteis</strong> para agendar seu diagnóstico gratuito.
+          <div className="qz-step">
+            <div className="qz-success-mark">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="11" stroke="#c01818" strokeWidth="1"/>
+                <path d="M7 12l3.5 3.5L17 8" stroke="#c01818" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <h3 className="qz-question">Informações recebidas.</h3>
+            <p className="qz-hint">
+              Nossa equipe entrará em contato em breve para dar início ao seu diagnóstico.
             </p>
-            <div className="success-highlight">
-              <p>📋 Empresa: <strong>{formData.companyName}</strong></p>
-              <p>📧 E-mail: <strong>{formData.email}</strong></p>
+            <div className="qz-summary">
+              <div className="qz-summary-row">
+                <span className="qz-summary-key">Empresa</span>
+                <span className="qz-summary-val">{formData.companyName}</span>
+              </div>
+              <div className="qz-summary-row">
+                <span className="qz-summary-key">E-mail</span>
+                <span className="qz-summary-val">{formData.email}</span>
+              </div>
             </div>
             <a
-              href={`https://wa.me/5548985020217?text=Ol%C3%A1%2C%20acabei%20de%20preencher%20o%20formul%C3%A1rio%20da%20EJEP%20e%20gostaria%20de%20saber%20mais%20sobre%20o%20diagn%C3%B3stico%20gratuito.`}
+              href={`https://wa.me/5548985020217?text=Ol%C3%A1%2C%20preenchi%20o%20formul%C3%A1rio%20da%20EJEP%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es.`}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-whatsapp"
-              style={{ marginTop: "24px", display: "inline-block" }}
+              className="qz-whatsapp"
             >
-              💬 Falar agora no WhatsApp
+              Falar pelo WhatsApp
             </a>
           </div>
         )}
       </div>
 
       <style jsx>{`
-        .quiz-wrapper {
-          width: 100%;
-          max-width: 600px;
-          margin: 0 auto;
-        }
-        .progress-bar-container {
-          width: 100%;
-          height: 4px;
-          background: #E0E0E0;
-          border-radius: 2px;
-          margin-bottom: 24px;
+        .qz-wrap { width: 100%; }
+
+        .qz-progress {
+          height: 1px;
+          background: rgba(255,255,255,0.06);
+          margin-bottom: 20px;
           overflow: hidden;
         }
-        .progress-bar-fill {
+        .qz-progress-fill {
           height: 100%;
-          background: #ED1515;
-          border-radius: 2px;
-          transition: width 0.4s ease;
+          background: #c01818;
+          transition: width 0.5s cubic-bezier(0.16,1,0.3,1);
         }
-        .quiz-card {
-          background: white;
-          border-radius: 16px;
-          padding: 40px;
-          box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+
+        .qz-card {
+          background: #0f030a;
+          border: 1px solid rgba(255,255,255,0.08);
+          padding: 40px 36px;
           position: relative;
+          animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
         }
-        @media (max-width: 600px) {
-          .quiz-card { padding: 24px 20px; }
+        @media (max-width: 500px) { .qz-card { padding: 28px 20px; } }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
-        .back-btn {
+
+        .qz-back {
           position: absolute;
-          top: 16px;
-          left: 20px;
-          background: none;
-          border: none;
-          color: #667085;
-          font-size: 14px;
+          top: 14px; left: 16px;
+          background: none; border: none;
+          color: #5a3333;
+          font-size: 12px;
+          font-family: var(--font-body), sans-serif;
+          letter-spacing: 0.06em;
           cursor: pointer;
-          padding: 4px 8px;
-          border-radius: 6px;
-          transition: color 0.2s;
+          display: flex; align-items: center; gap: 5px;
+          padding: 4px;
+          transition: color 0.15s;
         }
-        .back-btn:hover { color: #101828; }
-        .quiz-step { display: flex; flex-direction: column; gap: 16px; }
-        .step-label {
-          font-size: 13px;
-          font-weight: 600;
-          color: #ED1515;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
+        .qz-back:hover { color: #9a7878; }
+
+        .qz-step { display: flex; flex-direction: column; gap: 20px; }
+
+        .qz-counter {
+          font-family: var(--font-mono), monospace;
+          font-size: 11px;
+          letter-spacing: 0.16em;
+          color: #5a2020;
         }
-        .quiz-question {
+
+        .qz-question {
+          font-family: var(--font-display), serif;
           font-size: 22px;
-          font-weight: 700;
-          color: #101828;
-          line-height: 1.3;
-          margin: 0;
+          font-weight: 500;
+          color: #f0e6e6;
+          line-height: 1.2;
+          letter-spacing: -0.01em;
         }
-        @media (max-width: 600px) {
-          .quiz-question { font-size: 18px; }
+        @media (max-width: 500px) { .qz-question { font-size: 19px; } }
+
+        .qz-hint {
+          font-size: 14px;
+          color: #7a5050;
+          line-height: 1.65;
+          font-family: var(--font-body), sans-serif;
+          font-weight: 300;
         }
-        .quiz-sub {
-          font-size: 15px;
-          color: #667085;
-          margin: 0;
-          line-height: 1.5;
-        }
-        .option-row {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          margin-top: 8px;
-        }
-        .option-btn {
-          padding: 16px 24px;
-          border-radius: 10px;
-          font-size: 16px;
-          font-weight: 600;
+
+        .qz-options-col { display: flex; flex-direction: column; gap: 8px; }
+
+        .qz-opt-primary {
+          padding: 16px 20px;
+          background: #400505;
+          color: #f0e6e6;
+          border: 1px solid #5c0a0a;
+          font-family: var(--font-body), sans-serif;
+          font-size: 14px;
+          font-weight: 500;
+          letter-spacing: 0.04em;
           cursor: pointer;
-          border: 2px solid transparent;
-          transition: all 0.2s;
-          text-align: center;
+          text-align: left;
+          transition: background 0.15s;
         }
-        .option-btn.primary {
-          background: #ED1515;
-          color: white;
-          border-color: #ED1515;
+        .qz-opt-primary:hover { background: #5c0a0a; }
+
+        .qz-opt-ghost {
+          padding: 16px 20px;
+          background: transparent;
+          color: #9a7878;
+          border: 1px solid rgba(255,255,255,0.07);
+          font-family: var(--font-body), sans-serif;
+          font-size: 14px;
+          font-weight: 400;
+          cursor: pointer;
+          text-align: left;
+          transition: border-color 0.15s, color 0.15s;
         }
-        .option-btn.primary:hover { background: #C00D0D; border-color: #C00D0D; }
-        .option-btn.secondary {
-          background: white;
-          color: #344054;
-          border-color: #D0D5DD;
+        .qz-opt-ghost:hover { border-color: rgba(255,255,255,0.16); color: #f0e6e6; }
+
+        .qz-opt-revenue {
+          padding: 15px 20px;
+          background: transparent;
+          color: #9a7878;
+          border: 1px solid rgba(255,255,255,0.07);
+          font-family: var(--font-body), sans-serif;
+          font-size: 14px;
+          font-weight: 400;
+          cursor: pointer;
+          text-align: left;
+          transition: all 0.15s;
         }
-        .option-btn.secondary:hover { border-color: #101828; color: #101828; }
-        .quiz-input {
+        .qz-opt-revenue:hover {
+          border-color: #c01818;
+          color: #f0e6e6;
+          background: rgba(192,24,24,0.06);
+        }
+
+        .qz-input {
           width: 100%;
           padding: 14px 16px;
-          border: 2px solid #D0D5DD;
-          border-radius: 10px;
-          font-size: 16px;
-          color: #101828;
-          outline: none;
-          transition: border-color 0.2s;
-          font-family: inherit;
-        }
-        .quiz-input:focus { border-color: #ED1515; }
-        .revenue-options {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-        .revenue-btn {
-          padding: 14px 20px;
-          border: 2px solid #D0D5DD;
-          border-radius: 10px;
-          background: white;
-          color: #344054;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.08);
+          color: #f0e6e6;
+          font-family: var(--font-body), sans-serif;
           font-size: 15px;
-          font-weight: 500;
-          cursor: pointer;
-          text-align: left;
-          transition: all 0.2s;
-          font-family: inherit;
+          font-weight: 300;
+          outline: none;
+          transition: border-color 0.15s;
+          border-radius: 0;
+          -webkit-appearance: none;
         }
-        .revenue-btn:hover {
-          border-color: #ED1515;
-          color: #ED1515;
-          background: #FFF5F5;
+        .qz-input::placeholder { color: #4a2828; }
+        .qz-input:focus { border-color: rgba(192,24,24,0.5); }
+
+        .qz-error {
+          color: #c01818;
+          font-size: 12px;
+          font-family: var(--font-body), sans-serif;
+          letter-spacing: 0.03em;
+          margin-top: -8px;
         }
-        .btn-primary {
-          background: #ED1515;
-          color: white;
+
+        .qz-btn-primary {
+          background: #400505;
+          color: #f0e6e6;
           border: none;
-          padding: 15px 28px;
-          border-radius: 10px;
-          font-size: 16px;
-          font-weight: 700;
+          padding: 16px 28px;
+          font-family: var(--font-body), sans-serif;
+          font-size: 13px;
+          font-weight: 500;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
           cursor: pointer;
-          transition: background 0.2s;
-          font-family: inherit;
-          margin-top: 4px;
-        }
-        .btn-primary:hover:not(:disabled) { background: #C00D0D; }
-        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
-        .error-msg { color: #ED1515; font-size: 13px; margin: -4px 0 0; }
-        .disqualified-icon, .success-icon {
-          font-size: 48px;
+          transition: background 0.15s;
           text-align: center;
         }
-        .text-center { text-align: center; align-items: center; }
-        .success-highlight {
-          background: #F2F4F7;
-          border-radius: 10px;
+        .qz-btn-primary:hover:not(:disabled) { background: #5c0a0a; }
+        .qz-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .qz-btn-sec {
+          background: transparent;
+          color: #7a5050;
+          border: 1px solid rgba(255,255,255,0.07);
+          padding: 14px 24px;
+          font-family: var(--font-body), sans-serif;
+          font-size: 13px;
+          font-weight: 400;
+          letter-spacing: 0.06em;
+          cursor: pointer;
+          transition: color 0.15s, border-color 0.15s;
+        }
+        .qz-btn-sec:hover { color: #f0e6e6; border-color: rgba(255,255,255,0.16); }
+
+        .qz-success-mark {
+          width: 44px; height: 44px;
+          display: flex; align-items: center; justify-content: center;
+          border: 1px solid rgba(192,24,24,0.3);
+        }
+
+        .qz-summary {
+          border: 1px solid rgba(255,255,255,0.06);
           padding: 16px 20px;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          font-size: 15px;
-          color: #344054;
-          text-align: left;
-          width: 100%;
+          display: flex; flex-direction: column; gap: 10px;
         }
-        .btn-whatsapp {
-          background: #25D366;
-          color: white;
-          padding: 14px 28px;
-          border-radius: 10px;
-          font-size: 15px;
-          font-weight: 700;
+        .qz-summary-row { display: flex; justify-content: space-between; gap: 16px; }
+        .qz-summary-key {
+          font-size: 11px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: #4a2828;
+          font-family: var(--font-mono), monospace;
+          flex-shrink: 0;
+        }
+        .qz-summary-val {
+          font-size: 13px;
+          color: #9a7878;
+          font-family: var(--font-body), sans-serif;
+          text-align: right;
+        }
+
+        .qz-whatsapp {
+          display: block;
+          text-align: center;
+          background: transparent;
+          color: #9a7878;
+          border: 1px solid rgba(255,255,255,0.08);
+          padding: 14px 24px;
+          font-family: var(--font-body), sans-serif;
+          font-size: 13px;
+          font-weight: 400;
+          letter-spacing: 0.06em;
           text-decoration: none;
-          transition: background 0.2s;
+          transition: color 0.15s, border-color 0.15s;
         }
-        .btn-whatsapp:hover { background: #1ebe5a; }
+        .qz-whatsapp:hover { color: #f0e6e6; border-color: rgba(255,255,255,0.2); }
       `}</style>
     </div>
   );
