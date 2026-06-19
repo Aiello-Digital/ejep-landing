@@ -1,28 +1,34 @@
-import EjepLogo from "@/components/EjepLogo";
+import Image from "next/image";
 import Quiz from "@/components/Quiz";
 import WhatsAppButton from "@/components/WhatsAppButton";
 
 export default function Home() {
   return (
     <>
-      {/* ── HEADER ── */}
+      {/* HEADER */}
       <header className="site-header">
         <div className="header-inner">
-          <EjepLogo height={32} />
+          <Image
+            src="/logo-ejep.png"
+            alt="EJEP"
+            width={120}
+            height={48}
+            style={{ height: "48px", width: "auto" }}
+            priority
+          />
           <a href="#sobre" className="header-cta">Como funciona</a>
         </div>
       </header>
 
-      {/* ── HERO ── */}
+      {/* HERO */}
       <section id="quiz" className="hero">
-        <div className="hero-watermark" aria-hidden="true">EJEP</div>
-
         <div className="hero-grid">
-          {/* Left */}
+
+          {/* Esquerda */}
           <div>
             <div className="hero-eyebrow anim-1">
               <div className="eyebrow-line" />
-              <span className="eyebrow-text">Empresa Júnior — UFSC</span>
+              <span className="eyebrow-text">Empresa Júnior · UFSC</span>
             </div>
 
             <h1 className="hero-headline anim-2">
@@ -46,13 +52,13 @@ export default function Home() {
                 <div className="metric-label">Satisfação</div>
               </div>
               <div className="metric">
-                <div className="metric-value">4–8 sem.</div>
+                <div className="metric-value">4 a 8 sem.</div>
                 <div className="metric-label">Prazo médio</div>
               </div>
             </div>
           </div>
 
-          {/* Right — Quiz */}
+          {/* Direita — Quiz */}
           <div className="quiz-panel anim-3">
             <span className="quiz-intro-label">Diagnóstico gratuito</span>
             <p className="quiz-intro-text">
@@ -60,10 +66,11 @@ export default function Home() {
             </p>
             <Quiz />
           </div>
+
         </div>
       </section>
 
-      {/* ── ABOUT ── */}
+      {/* SOBRE */}
       <section id="sobre" className="about">
         <div className="container">
           <div className="about-header">
@@ -114,7 +121,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
+      {/* CTA */}
       <section className="cta-strip">
         <div className="cta-inner">
           <h2 className="cta-headline">
@@ -130,12 +137,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── FOOTER ── */}
+      {/* FOOTER */}
       <footer className="site-footer">
         <div className="footer-inner">
-          <EjepLogo height={24} />
+          <Image
+            src="/logo-ejep.png"
+            alt="EJEP"
+            width={80}
+            height={36}
+            className="footer-logo"
+            style={{ filter: "brightness(0) invert(1)", height: "36px", width: "auto" }}
+          />
           <p className="footer-meta">© 2026 EJEP. Todos os direitos reservados.</p>
-          <p className="footer-address">UFSC – Trindade, Florianópolis – SC</p>
+          <p className="footer-address">UFSC · Trindade, Florianópolis · SC</p>
         </div>
       </footer>
 
