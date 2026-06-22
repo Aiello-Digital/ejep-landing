@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, DM_Sans, DM_Mono } from "next/font/google";
+import { Inter, DM_Mono } from "next/font/google";
 import "./globals.css";
 
-const cormorant = Cormorant_Garamond({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-display",
-});
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  variable: "--font-body",
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-sans",
 });
 
 const dmMono = DM_Mono({
@@ -29,7 +22,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${cormorant.variable} ${dmSans.variable} ${dmMono.variable}`}>
+    <html lang="pt-BR" className={`${inter.variable} ${dmMono.variable}`}>
       <body>{children}</body>
     </html>
   );
