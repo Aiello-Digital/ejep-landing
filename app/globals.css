@@ -220,7 +220,7 @@ body {
 
 /* ── ABOUT SECTION ── */
 .about {
-  background: #fbf9f9;
+  background: #faf7f7;
   padding: 100px 0;
   position: relative;
 }
@@ -276,7 +276,7 @@ body {
 .about-desc {
   font-size: 15px;
   line-height: 1.8;
-  color: #4a3030;
+  color: #4a2828;
   font-weight: 400;
   max-width: 420px;
   align-self: end;
@@ -293,51 +293,46 @@ body {
 .steps-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  border: 1px solid #c8afaf; /* Darker, higher-contrast pinkish-brown grid border */
 }
-@media (max-width: 1024px) {
-  .steps-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
-}
-@media (max-width: 580px)  {
-  .steps-grid { grid-template-columns: 1fr; gap: 16px; }
-}
+@media (max-width: 860px) { .steps-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px)  { .steps-grid { grid-template-columns: 1fr; } }
 
 .step-card {
   padding: 36px 28px;
+  border-right: 1px solid #c8afaf; /* Darker card division border */
   position: relative;
   background: #ffffff;
-  border: 1px solid rgba(64, 5, 5, 0.08);
-  border-top: 4px solid var(--wine);
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(64, 5, 5, 0.03);
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
-              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
-              border-color 0.25s ease;
+  transition: background 0.25s ease;
 }
-.step-card:hover {
-  transform: translateY(-5px);
-  border-top-color: var(--crimson);
-  box-shadow: 0 12px 30px rgba(64, 5, 5, 0.1);
-  background: #ffffff;
+.step-card:last-child { border-right: none; }
+@media (max-width: 860px) {
+  .step-card:nth-child(2) { border-right: none; }
+  .step-card:nth-child(3) { border-right: 1px solid #c8afaf; }
+  .step-card { border-bottom: 1px solid #c8afaf; }
+  .step-card:nth-child(3),
+  .step-card:nth-child(4) { border-bottom: none; }
+}
+@media (max-width: 480px) {
+  .step-card { border-right: none !important; border-bottom: 1px solid #c8afaf; }
+  .step-card:last-child { border-bottom: none; }
+}
+.step-card:hover { 
+  background: #fff3f3; /* Richer, higher-contrast soft red hover background */
 }
 
 .step-num {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: var(--wine);
-  color: #ffffff;
   font-family: var(--font-mono), monospace;
   font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--crimson); /* High contrast vibrant red instead of faint wine */
   font-weight: 700;
-  border-radius: 4px;
-  margin-bottom: 24px;
-  transition: background 0.25s ease;
+  margin-bottom: 28px;
+  display: block;
+  transition: transform 0.2s ease;
 }
 .step-card:hover .step-num {
-  background: var(--crimson);
+  transform: translateX(3px); /* Subtle shift on hover to make it feel alive! */
 }
 
 .step-title {
@@ -350,24 +345,25 @@ body {
 }
 .step-desc {
   font-size: 14px;
-  color: #3e2c2c;
+  color: #3e2424; /* Highly contrasting dark brown copy for superior readability */
   line-height: 1.7;
   font-weight: 400;
 }
 .step-ghost {
   position: absolute;
-  bottom: 12px; right: 16px;
+  bottom: 8px; right: 14px;
   font-family: var(--font-display), sans-serif;
   font-size: 64px;
   font-weight: 800;
-  color: rgba(176, 20, 20, 0.08);
+  color: rgba(176, 20, 20, 0.09); /* Vibrant warm crimson ghost numbers with higher contrast */
   line-height: 1;
   pointer-events: none;
   user-select: none;
-  transition: color 0.25s ease;
+  transition: color 0.25s ease, transform 0.25s ease;
 }
 .step-card:hover .step-ghost {
-  color: rgba(176, 20, 20, 0.15);
+  color: rgba(176, 20, 20, 0.16);
+  transform: scale(1.05);
 }
 
 /* ── CTA STRIP ── */
