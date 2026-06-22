@@ -29,7 +29,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body), 'DM Sans', sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -84,6 +84,7 @@ body {
 
 /* ── HERO ── */
 .hero {
+  --crimson: #ff4a4a; /* High-contrast vibrant red for text accents on dark background */
   position: relative;
   min-height: 100vh;
   display: grid;
@@ -138,26 +139,27 @@ body {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--crimson);
+  font-weight: 600; /* slightly bolder for readability */
 }
 
 .hero-headline {
   font-family: var(--font-display), serif;
   font-size: clamp(38px, 4.2vw, 62px);
-  font-weight: 600;
+  font-weight: 700; /* bold font weight for strong hierarchy */
   line-height: 1.1;
   letter-spacing: -0.02em;
-  color: var(--text);
+  color: #ffffff; /* pure white for supreme contrast */
   margin-bottom: 24px;
 }
-.hero-headline em { font-style: italic; color: var(--crimson); }
+.hero-headline em { font-style: italic; color: var(--crimson); font-weight: 700; }
 
 .hero-sub {
-  font-size: 15px;
-  line-height: 1.75;
-  color: var(--text-2);
-  max-width: 460px;
+  font-size: 16px; /* slightly larger for readability */
+  line-height: 1.8;
+  color: #dfcfcf; /* brighter rose-white for high contrast on dark bg */
+  max-width: 480px;
   margin-bottom: 44px;
-  font-weight: 300;
+  font-weight: 400; /* Regular instead of Light weight */
 }
 
 .hero-metrics {
@@ -186,30 +188,32 @@ body {
   margin-bottom: 5px;
 }
 .metric-label {
-  font-size: 10px;
-  letter-spacing: 0.12em;
+  font-size: 11px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: #cca3a3; /* much more visible on dark background */
+  font-weight: 500;
 }
 
 /* ── QUIZ PANEL ── */
 .quiz-panel { position: relative; z-index: 1; }
 .quiz-intro-label {
   font-family: var(--font-mono), monospace;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: #ff4a4a; /* vibrant high-contrast red accent */
   margin-bottom: 12px;
   display: block;
+  font-weight: 600;
 }
 .quiz-intro-text {
   font-family: var(--font-body), sans-serif;
-  font-size: 14px;
-  color: var(--text-2);
+  font-size: 15px;
+  color: #ffffff; /* pure white for absolute best contrast */
   margin-bottom: 18px;
   line-height: 1.6;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 /* ── ABOUT SECTION ── */
