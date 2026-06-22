@@ -26,18 +26,19 @@ export default function Home() {
 
           {/* Esquerda */}
           <div>
-            <h1 className="hero-headline anim-1">
+
+            <h1 className="hero-headline anim-2">
               Sua empresa cresce,<br />
               mas os processos<br />
               <em>não acompanham?</em>
             </h1>
 
-            <p className="hero-sub anim-2">
+            <p className="hero-sub anim-3">
               Mapeamos, documentamos e otimizamos suas operações para que
               você pare de apagar incêndios e comece a escalar com controle.
             </p>
 
-            <div className="hero-metrics anim-3">
+            <div className="hero-metrics anim-4">
               <div className="metric">
                 <div className="metric-value">450+</div>
                 <div className="metric-label">Projetos entregues</div>
