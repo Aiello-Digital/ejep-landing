@@ -26,23 +26,18 @@ export default function Home() {
 
           {/* Esquerda */}
           <div>
-            <div className="hero-eyebrow anim-1">
-              <div className="eyebrow-line" />
-              <span className="eyebrow-text">Empresa Júnior · UFSC</span>
-            </div>
-
-            <h1 className="hero-headline anim-2">
+            <h1 className="hero-headline anim-1">
               Sua empresa cresce,<br />
               mas os processos<br />
               <em>não acompanham?</em>
             </h1>
 
-            <p className="hero-sub anim-3">
+            <p className="hero-sub anim-2">
               Mapeamos, documentamos e otimizamos suas operações para que
               você pare de apagar incêndios e comece a escalar com controle.
             </p>
 
-            <div className="hero-metrics anim-4">
+            <div className="hero-metrics anim-3">
               <div className="metric">
                 <div className="metric-value">450+</div>
                 <div className="metric-label">Projetos entregues</div>
