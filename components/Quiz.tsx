@@ -6,6 +6,7 @@ import { WHATSAPP_URL } from "@/lib/constants";
 type Step =
   | "q1_has_company"
   | "q1_disqualified"
+  | "q1b_role"
   | "q2_company_name"
   | "q3_revenue"
   | "q4_contact_name"
@@ -15,6 +16,7 @@ type Step =
 
 interface FormData {
   hasCompany: string;
+  role: string;
   companyName: string;
   revenue: string;
   contactName: string;
@@ -33,6 +35,8 @@ const REVENUE_OPTIONS = [
   { value: "acima_500k", label: "Acima de R$ 500.000" },
 ];
 
+const ROLE_OPTIONS = ["Dono", "Diretor", "Gerente", "Funcionário"];
+
 const BR_PHONE_RE = /^\(\d{2}\) \d{4,5}-\d{4}$/;
 
 function formatPhone(raw: string): string {
@@ -46,6 +50,7 @@ function formatPhone(raw: string): string {
 
 const STEP_ORDER: Step[] = [
   "q1_has_company",
+  "q1b_role",
   "q2_company_name",
   "q3_revenue",
   "q4_contact_name",
@@ -74,7 +79,7 @@ function getUtmParams() {
 export default function Quiz() {
   const [step, setStep]         = useState<Step>("q1_has_company");
   const [formData, setFormData] = useState<FormData>({
-    hasCompany: "", companyName: "", revenue: "",
+    hasCompany: "", role: "", companyName: "", revenue: "",
     contactName: "", email: "", phone: "",
     utm_source: "", utm_medium: "", utm_campaign: "", utm_term: "",
   });
@@ -96,10 +101,10 @@ export default function Quiz() {
   }, [step]);
 
   const STEP_FIELD: Partial<Record<Step, keyof FormData>> = {
-    q2_company_name:  "companyName",
-    q4_contact_name:  "contactName",
-    q5_email:         "email",
-    q6_phone:         "phone",
+    q2_company_name: "companyName",
+    q4_contact_name: "contactName",
+    q5_email:        "email",
+    q6_phone:        "phone",
   };
 
   function goBack() {
@@ -118,8 +123,13 @@ export default function Quiz() {
       setStep("q1_disqualified");
     } else {
       setFormData((p) => ({ ...p, hasCompany: "sim" }));
-      setStep("q2_company_name");
+      setStep("q1b_role");
     }
+  }
+
+  function handleRole(value: string) {
+    setFormData((p) => ({ ...p, role: value }));
+    setStep("q2_company_name");
   }
 
   function handleRevenue(value: string) {
@@ -158,6 +168,23 @@ export default function Quiz() {
       setError("Erro ao enviar. Tente novamente ou entre em contato pelo WhatsApp.");
       return;
     }
+
+    // DataLayer event para GTM
+    if (typeof window !== "undefined") {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).dataLayer = (window as any).dataLayer || [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).dataLayer.push({
+        event: "quiz_lead_submitted",
+        cargo: finalData.role,
+        faturamento: finalData.revenue,
+        utm_source: finalData.utm_source,
+        utm_medium: finalData.utm_medium,
+        utm_campaign: finalData.utm_campaign,
+        utm_term: finalData.utm_term,
+      });
+    }
+
     setLoading(false);
     setInputValue("");
     setStep("success");
@@ -174,7 +201,6 @@ export default function Quiz() {
 
   return (
     <div className="qz-wrap">
-      {/* Progress */}
       {showProgress && (
         <div className="qz-progress">
           <div className="qz-progress-fill" style={{ width: `${progress}%` }} />
@@ -191,10 +217,10 @@ export default function Quiz() {
           </button>
         )}
 
-        {/* Q1 */}
+        {/* Q1 — Possui empresa? */}
         {step === "q1_has_company" && (
           <div className="qz-step">
-            <div className="qz-counter">01 / 06</div>
+            <div className="qz-counter">01 / 07</div>
             <h3 className="qz-question">Você possui uma empresa?</h3>
             <div className="qz-options-col">
               <button className="qz-opt-primary" onClick={() => handleYesNo("sim")}>Sim</button>
@@ -203,7 +229,7 @@ export default function Quiz() {
           </div>
         )}
 
-        {/* Disqualified */}
+        {/* Desqualificado */}
         {step === "q1_disqualified" && (
           <div className="qz-step">
             <h3 className="qz-question">Obrigado pelo interesse.</h3>
@@ -221,10 +247,25 @@ export default function Quiz() {
           </div>
         )}
 
-        {/* Q2 */}
+        {/* Q1b — Cargo */}
+        {step === "q1b_role" && (
+          <div className="qz-step">
+            <div className="qz-counter">02 / 07</div>
+            <h3 className="qz-question">Qual seu cargo?</h3>
+            <div className="qz-options-col">
+              {ROLE_OPTIONS.map((role) => (
+                <button key={role} className="qz-opt-revenue" onClick={() => handleRole(role)}>
+                  {role}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Q2 — Nome da empresa */}
         {step === "q2_company_name" && (
           <div className="qz-step">
-            <div className="qz-counter">02 / 06</div>
+            <div className="qz-counter">03 / 07</div>
             <h3 className="qz-question">Nome da empresa</h3>
             <input
               ref={inputRef}
@@ -242,10 +283,10 @@ export default function Quiz() {
           </div>
         )}
 
-        {/* Q3 */}
+        {/* Q3 — Faturamento */}
         {step === "q3_revenue" && (
           <div className="qz-step">
-            <div className="qz-counter">03 / 06</div>
+            <div className="qz-counter">04 / 07</div>
             <h3 className="qz-question">Faturamento mensal</h3>
             <div className="qz-options-col">
               {REVENUE_OPTIONS.map((opt) => (
@@ -257,10 +298,10 @@ export default function Quiz() {
           </div>
         )}
 
-        {/* Q4 */}
+        {/* Q4 — Nome */}
         {step === "q4_contact_name" && (
           <div className="qz-step">
-            <div className="qz-counter">04 / 06</div>
+            <div className="qz-counter">05 / 07</div>
             <h3 className="qz-question">Seu nome</h3>
             <input
               ref={inputRef}
@@ -278,10 +319,10 @@ export default function Quiz() {
           </div>
         )}
 
-        {/* Q5 */}
+        {/* Q5 — Email */}
         {step === "q5_email" && (
           <div className="qz-step">
-            <div className="qz-counter">05 / 06</div>
+            <div className="qz-counter">06 / 07</div>
             <h3 className="qz-question">Seu e-mail</h3>
             <input
               ref={inputRef}
@@ -299,10 +340,10 @@ export default function Quiz() {
           </div>
         )}
 
-        {/* Q6 */}
+        {/* Q6 — Telefone */}
         {step === "q6_phone" && (
           <div className="qz-step">
-            <div className="qz-counter">06 / 06</div>
+            <div className="qz-counter">07 / 07</div>
             <h3 className="qz-question">WhatsApp com DDD</h3>
             <input
               ref={inputRef}
@@ -321,13 +362,13 @@ export default function Quiz() {
           </div>
         )}
 
-        {/* Success */}
+        {/* Sucesso */}
         {step === "success" && (
           <div className="qz-step">
             <div className="qz-success-mark">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="11" stroke="#c01818" strokeWidth="1"/>
-                <path d="M7 12l3.5 3.5L17 8" stroke="#c01818" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="12" cy="12" r="11" stroke="#b01414" strokeWidth="1"/>
+                <path d="M7 12l3.5 3.5L17 8" stroke="#b01414" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
             <h3 className="qz-question">Informações recebidas.</h3>
@@ -360,38 +401,37 @@ export default function Quiz() {
         .qz-wrap { width: 100%; }
 
         .qz-progress {
-          height: 1px;
-          background: rgba(255,255,255,0.08);
-          margin-bottom: 20px;
+          height: 2px;
+          background: rgba(255,255,255,0.1);
           overflow: hidden;
         }
         .qz-progress-fill {
           height: 100%;
-          background: #ff4a4a; /* bright glowing red */
+          background: #b01414;
           transition: width 0.5s cubic-bezier(0.16,1,0.3,1);
         }
 
         .qz-card {
-          background: #ffffff; /* Scenario 2: Pure White Card for absolute contrast */
-          border: 1px solid #b01414; /* Refined 1px crimson border to ground the card in brand identity */
-          box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45); /* Elegant dark drop shadow so it stands out powerfully */
-          padding: 40px 36px;
+          background: #ffffff;
+          border: 1px solid rgba(176,20,20,0.2);
+          border-top: 3px solid #b01414;
+          padding: 36px 32px 32px;
           position: relative;
           animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
         }
         @media (max-width: 500px) { .qz-card { padding: 28px 20px; } }
 
         @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(12px); }
+          from { opacity: 0; transform: translateY(10px); }
           to   { opacity: 1; transform: translateY(0); }
         }
 
         .qz-back {
           position: absolute;
-          top: 14px; left: 16px;
+          top: 12px; left: 14px;
           background: none; border: none;
-          color: #7a5050; /* Sophisticated rose-brown for back button */
-          font-size: 12px;
+          color: #9a7070;
+          font-size: 11px;
           font-family: var(--font-body), sans-serif;
           letter-spacing: 0.06em;
           cursor: pointer;
@@ -401,29 +441,29 @@ export default function Quiz() {
         }
         .qz-back:hover { color: #b01414; }
 
-        .qz-step { display: flex; flex-direction: column; gap: 20px; }
+        .qz-step { display: flex; flex-direction: column; gap: 18px; }
 
         .qz-counter {
           font-family: var(--font-mono), monospace;
-          font-size: 11px;
-          letter-spacing: 0.16em;
-          color: #7a5050; /* Rose-brown counter text */
+          font-size: 10px;
+          letter-spacing: 0.18em;
+          color: #b01414;
           font-weight: 500;
         }
 
         .qz-question {
           font-family: var(--font-display), serif;
-          font-size: 22px;
+          font-size: 21px;
           font-weight: 600;
-          color: #1a0505; /* Deep luxury wine-black for maximum contrast on white */
+          color: #1a0505;
           line-height: 1.2;
           letter-spacing: -0.01em;
         }
-        @media (max-width: 500px) { .qz-question { font-size: 19px; } }
+        @media (max-width: 500px) { .qz-question { font-size: 18px; } }
 
         .qz-hint {
           font-size: 14px;
-          color: #5c4040; /* Readable charcoal-wine body text */
+          color: #5c4040;
           line-height: 1.65;
           font-family: var(--font-body), sans-serif;
           font-weight: 400;
@@ -432,39 +472,39 @@ export default function Quiz() {
         .qz-options-col { display: flex; flex-direction: column; gap: 8px; }
 
         .qz-opt-primary {
-          padding: 16px 20px;
-          background: #b01414; /* Solid crimson brand background */
+          padding: 15px 20px;
+          background: #400505;
           color: #ffffff;
-          border: 1px solid #b01414;
-          font-family: var(--font-body), sans-serif;
-          font-size: 14px;
-          font-weight: 600;
-          letter-spacing: 0.04em;
-          cursor: pointer;
-          text-align: left;
-          transition: background 0.15s, border-color 0.15s;
-        }
-        .qz-opt-primary:hover { background: #d01c1c; border-color: #d01c1c; }
-
-        .qz-opt-ghost {
-          padding: 16px 20px;
-          background: #ffffff;
-          color: #1a0505; /* High contrast black text */
-          border: 1px solid rgba(26, 5, 5, 0.2); /* Clear border on white background */
+          border: 1px solid #400505;
           font-family: var(--font-body), sans-serif;
           font-size: 14px;
           font-weight: 500;
+          letter-spacing: 0.02em;
           cursor: pointer;
           text-align: left;
-          transition: border-color 0.15s, background 0.15s;
+          transition: background 0.15s;
         }
-        .qz-opt-ghost:hover { border-color: #1a0505; background: #faf6f6; }
+        .qz-opt-primary:hover { background: #5c0a0a; border-color: #5c0a0a; }
 
-        .qz-opt-revenue {
+        .qz-opt-ghost {
           padding: 15px 20px;
           background: #ffffff;
           color: #400505;
-          border: 1px solid rgba(26, 5, 5, 0.15); /* highly visible borders */
+          border: 1px solid rgba(64,5,5,0.2);
+          font-family: var(--font-body), sans-serif;
+          font-size: 14px;
+          font-weight: 400;
+          cursor: pointer;
+          text-align: left;
+          transition: border-color 0.15s;
+        }
+        .qz-opt-ghost:hover { border-color: #400505; }
+
+        .qz-opt-revenue {
+          padding: 13px 20px;
+          background: #ffffff;
+          color: #1a0505;
+          border: 1px solid rgba(64,5,5,0.15);
           font-family: var(--font-body), sans-serif;
           font-size: 14px;
           font-weight: 400;
@@ -475,40 +515,39 @@ export default function Quiz() {
         .qz-opt-revenue:hover {
           border-color: #b01414;
           color: #b01414;
-          background: rgba(176, 20, 20, 0.05);
+          background: #fdf8f8;
         }
 
         .qz-input {
           width: 100%;
-          padding: 14px 16px;
-          background: #ffffff; /* white input background */
-          border: 1px solid rgba(26, 5, 5, 0.22); /* dark border for great usability */
+          padding: 13px 16px;
+          background: #ffffff;
+          border: 1px solid rgba(64,5,5,0.2);
           color: #1a0505;
           font-family: var(--font-body), sans-serif;
           font-size: 15px;
           font-weight: 400;
           outline: none;
-          transition: border-color 0.15s, box-shadow 0.15s;
+          transition: border-color 0.15s;
           border-radius: 0;
           -webkit-appearance: none;
         }
-        .qz-input::placeholder { color: #9c8484; }
-        .qz-input:focus { border-color: #b01414; box-shadow: 0 0 10px rgba(176, 20, 20, 0.1); }
+        .qz-input::placeholder { color: #b09090; }
+        .qz-input:focus { border-color: #b01414; }
 
         .qz-error {
-          color: #b01414; /* Crimson error text for strong legibility on white card */
+          color: #b01414;
           font-size: 12px;
           font-family: var(--font-body), sans-serif;
           letter-spacing: 0.03em;
-          margin-top: -8px;
-          font-weight: 500;
+          margin-top: -6px;
         }
 
         .qz-btn-primary {
-          background: #b01414; /* Solid, actionable crimson button */
+          background: #400505;
           color: #ffffff;
           border: none;
-          padding: 16px 28px;
+          padding: 15px 28px;
           font-family: var(--font-body), sans-serif;
           font-size: 13px;
           font-weight: 600;
@@ -518,41 +557,41 @@ export default function Quiz() {
           transition: background 0.15s;
           text-align: center;
         }
-        .qz-btn-primary:hover:not(:disabled) { background: #d01c1c; }
+        .qz-btn-primary:hover:not(:disabled) { background: #5c0a0a; }
         .qz-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .qz-btn-sec {
           background: transparent;
-          color: #1a0505;
-          border: 1px solid rgba(26, 5, 5, 0.25);
-          padding: 14px 24px;
+          color: #7a5050;
+          border: 1px solid rgba(64,5,5,0.15);
+          padding: 13px 24px;
           font-family: var(--font-body), sans-serif;
           font-size: 13px;
           font-weight: 400;
           letter-spacing: 0.06em;
           cursor: pointer;
-          transition: color 0.15s, border-color 0.15s, background 0.15s;
+          transition: color 0.15s, border-color 0.15s;
         }
-        .qz-btn-sec:hover { color: #b01414; border-color: #b01414; background: rgba(176, 20, 20, 0.03); }
+        .qz-btn-sec:hover { color: #400505; border-color: #400505; }
 
         .qz-success-mark {
-          width: 44px; height: 44px;
+          width: 40px; height: 40px;
           display: flex; align-items: center; justify-content: center;
           border: 1px solid rgba(176,20,20,0.3);
         }
 
         .qz-summary {
-          border: 1px solid rgba(26, 5, 5, 0.1);
-          background: #faf6f6; /* light warm background for summary cards */
-          padding: 16px 20px;
+          border: 1px solid rgba(64,5,5,0.1);
+          background: #fdf8f8;
+          padding: 14px 18px;
           display: flex; flex-direction: column; gap: 10px;
         }
         .qz-summary-row { display: flex; justify-content: space-between; gap: 16px; }
         .qz-summary-key {
-          font-size: 11px;
-          letter-spacing: 0.12em;
+          font-size: 10px;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: #7a5050;
+          color: #9a7070;
           font-family: var(--font-mono), monospace;
           flex-shrink: 0;
         }

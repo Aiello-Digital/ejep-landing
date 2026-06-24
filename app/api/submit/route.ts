@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
   }
 
   const companyName  = sanitize(data.companyName);
+  const role         = sanitize(data.role);
   const revenue      = sanitize(data.revenue);
   const contactName  = sanitize(data.contactName);
   const email        = sanitize(data.email);
@@ -33,30 +34,33 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "invalid_phone" }, { status: 400 });
   }
 
-  const webhookUrl = process.env.ZAPIER_WEBHOOK_URL;
-  if (webhookUrl) {
+  const payload = {
+    empresa:      companyName,
+    cargo:        role,
+    faturamento:  revenue,
+    nome:         contactName,
+    email,
+    telefone:     phone,
+    utm_source:   sanitize(data.utm_source),
+    utm_medium:   sanitize(data.utm_medium),
+    utm_campaign: sanitize(data.utm_campaign),
+    utm_term:     sanitize(data.utm_term),
+    data_envio:   new Date().toISOString(),
+  };
+
+  const makeUrl = process.env.MAKE_WEBHOOK_URL;
+  if (makeUrl) {
     try {
-      const res = await fetch(webhookUrl, {
+      const res = await fetch(makeUrl, {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          empresa:      companyName,
-          faturamento:  revenue,
-          nome:         contactName,
-          email,
-          telefone:     phone,
-          utm_source:   sanitize(data.utm_source),
-          utm_medium:   sanitize(data.utm_medium),
-          utm_campaign: sanitize(data.utm_campaign),
-          utm_term:     sanitize(data.utm_term),
-          data_envio:   new Date().toISOString(),
-        }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        console.error("Zapier webhook returned", res.status);
+        console.error("Make webhook returned", res.status);
       }
     } catch (err) {
-      console.error("Zapier webhook error:", err);
+      console.error("Make webhook error:", err);
     }
   }
 

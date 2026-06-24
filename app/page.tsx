@@ -56,9 +56,13 @@ export default function Home() {
 
           {/* Direita — Quiz */}
           <div className="quiz-panel anim-3">
-            <span className="quiz-intro-label">Diagnóstico gratuito</span>
+            <div className="quiz-intro-header">
+              <span className="quiz-intro-label">Diagnóstico gratuito</span>
+              <span className="quiz-intro-badge">2 min</span>
+            </div>
             <p className="quiz-intro-text">
-              Responda as perguntas para receber um diagnóstico gratuito.
+              7 perguntas. Sem compromisso. Descubra o que está travando
+              o crescimento da sua operação.
             </p>
             <Quiz />
           </div>
