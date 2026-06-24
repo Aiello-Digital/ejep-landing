@@ -35,8 +35,8 @@ export default function Home() {
 
             <p className="hero-sub anim-3">
               Toda empresa chega num ponto em que o esforço já não gera
-              resultado proporcional. A EJEP entra exatamente aí — com
-              método, diagnóstico e um plano que funciona na prática.
+              resultado proporcional. A EJEP entra exatamente aí: método,
+              diagnóstico e um plano que funciona na prática.
             </p>
 
             <div className="hero-metrics anim-4">
@@ -59,14 +59,13 @@ export default function Home() {
           <div className="quiz-panel anim-3">
             <div className="quiz-intro-header">
               <span className="quiz-intro-label">Diagnóstico gratuito</span>
-              <span className="quiz-intro-badge">≈ 2 min</span>
             </div>
             <p className="quiz-intro-title">
               Descubra o que está<br />travando sua empresa.
             </p>
             <p className="quiz-intro-sub">
               Responda 7 perguntas rápidas e nossa equipe entra em contato
-              com um diagnóstico personalizado — sem compromisso.
+              com um diagnóstico personalizado, sem compromisso.
             </p>
             <div className="quiz-start-cue">
               <span className="quiz-start-arrow">↓</span>
