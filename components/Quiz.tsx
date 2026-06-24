@@ -413,13 +413,13 @@ export default function Quiz() {
 
         .qz-card {
           background: #ffffff;
-          border: 1px solid rgba(176,20,20,0.2);
-          border-top: 3px solid #b01414;
-          padding: 36px 32px 32px;
+          border: 2px solid rgba(176,20,20,0.15);
+          border-top: 4px solid #b01414;
+          padding: 40px 36px 36px;
           position: relative;
           animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
         }
-        @media (max-width: 500px) { .qz-card { padding: 28px 20px; } }
+        @media (max-width: 500px) { .qz-card { padding: 30px 22px 26px; } }
 
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(10px); }
@@ -445,21 +445,21 @@ export default function Quiz() {
 
         .qz-counter {
           font-family: var(--font-mono), monospace;
-          font-size: 10px;
-          letter-spacing: 0.18em;
+          font-size: 11px;
+          letter-spacing: 0.2em;
           color: #b01414;
-          font-weight: 500;
+          font-weight: 700;
         }
 
         .qz-question {
           font-family: var(--font-display), serif;
-          font-size: 21px;
-          font-weight: 600;
+          font-size: 26px;
+          font-weight: 700;
           color: #1a0505;
-          line-height: 1.2;
-          letter-spacing: -0.01em;
+          line-height: 1.15;
+          letter-spacing: -0.02em;
         }
-        @media (max-width: 500px) { .qz-question { font-size: 18px; } }
+        @media (max-width: 500px) { .qz-question { font-size: 21px; } }
 
         .qz-hint {
           font-size: 14px;
@@ -472,68 +472,82 @@ export default function Quiz() {
         .qz-options-col { display: flex; flex-direction: column; gap: 8px; }
 
         .qz-opt-primary {
-          padding: 15px 20px;
+          padding: 18px 24px;
           background: #400505;
           color: #ffffff;
-          border: 1px solid #400505;
+          border: 2px solid #400505;
           font-family: var(--font-body), sans-serif;
-          font-size: 14px;
-          font-weight: 500;
-          letter-spacing: 0.02em;
+          font-size: 16px;
+          font-weight: 600;
+          letter-spacing: 0.01em;
           cursor: pointer;
           text-align: left;
-          transition: background 0.15s;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          transition: background 0.15s, transform 0.12s;
         }
-        .qz-opt-primary:hover { background: #5c0a0a; border-color: #5c0a0a; }
+        .qz-opt-primary::after { content: "→"; font-size: 18px; opacity: 0.7; }
+        .qz-opt-primary:hover { background: #5c0a0a; border-color: #5c0a0a; transform: translateX(3px); }
 
         .qz-opt-ghost {
-          padding: 15px 20px;
+          padding: 18px 24px;
           background: #ffffff;
           color: #400505;
-          border: 1px solid rgba(64,5,5,0.2);
+          border: 2px solid rgba(64,5,5,0.25);
           font-family: var(--font-body), sans-serif;
-          font-size: 14px;
-          font-weight: 400;
+          font-size: 16px;
+          font-weight: 500;
           cursor: pointer;
           text-align: left;
-          transition: border-color 0.15s;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          transition: border-color 0.15s, transform 0.12s;
         }
-        .qz-opt-ghost:hover { border-color: #400505; }
+        .qz-opt-ghost::after { content: "→"; font-size: 18px; opacity: 0.4; }
+        .qz-opt-ghost:hover { border-color: #400505; transform: translateX(3px); }
 
         .qz-opt-revenue {
-          padding: 13px 20px;
+          padding: 17px 24px;
           background: #ffffff;
           color: #1a0505;
-          border: 1px solid rgba(64,5,5,0.15);
+          border: 2px solid rgba(64,5,5,0.12);
           font-family: var(--font-body), sans-serif;
-          font-size: 14px;
-          font-weight: 400;
+          font-size: 16px;
+          font-weight: 500;
           cursor: pointer;
           text-align: left;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
           transition: all 0.15s;
         }
+        .qz-opt-revenue::after { content: "→"; font-size: 16px; color: #b01414; opacity: 0; transition: opacity 0.15s; }
         .qz-opt-revenue:hover {
           border-color: #b01414;
           color: #b01414;
           background: #fdf8f8;
+          transform: translateX(3px);
         }
+        .qz-opt-revenue:hover::after { opacity: 1; }
 
         .qz-input {
           width: 100%;
-          padding: 13px 16px;
+          padding: 16px 18px;
           background: #ffffff;
-          border: 1px solid rgba(64,5,5,0.2);
+          border: 2px solid rgba(64,5,5,0.2);
           color: #1a0505;
           font-family: var(--font-body), sans-serif;
-          font-size: 15px;
+          font-size: 17px;
           font-weight: 400;
           outline: none;
-          transition: border-color 0.15s;
+          transition: border-color 0.15s, box-shadow 0.15s;
           border-radius: 0;
           -webkit-appearance: none;
         }
         .qz-input::placeholder { color: #b09090; }
-        .qz-input:focus { border-color: #b01414; }
+        .qz-input:focus { border-color: #b01414; box-shadow: 0 0 0 3px rgba(176,20,20,0.08); }
 
         .qz-error {
           color: #b01414;
@@ -544,20 +558,25 @@ export default function Quiz() {
         }
 
         .qz-btn-primary {
-          background: #400505;
+          background: #b01414;
           color: #ffffff;
           border: none;
-          padding: 15px 28px;
+          padding: 18px 32px;
           font-family: var(--font-body), sans-serif;
-          font-size: 13px;
-          font-weight: 600;
-          letter-spacing: 0.08em;
+          font-size: 15px;
+          font-weight: 700;
+          letter-spacing: 0.06em;
           text-transform: uppercase;
           cursor: pointer;
-          transition: background 0.15s;
+          transition: background 0.15s, transform 0.12s;
           text-align: center;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
         }
-        .qz-btn-primary:hover:not(:disabled) { background: #5c0a0a; }
+        .qz-btn-primary::after { content: "→"; font-size: 18px; font-weight: 400; }
+        .qz-btn-primary:hover:not(:disabled) { background: #8f0f0f; transform: translateY(-1px); }
         .qz-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .qz-btn-sec {

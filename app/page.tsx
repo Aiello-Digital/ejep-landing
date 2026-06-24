@@ -28,14 +28,15 @@ export default function Home() {
           <div>
 
             <h1 className="hero-headline anim-2">
-              Sua empresa cresce,<br />
-              mas os processos<br />
-              <em>não acompanham?</em>
+              Sua empresa tem<br />
+              potencial. Falta<br />
+              <em>clareza para escalar.</em>
             </h1>
 
             <p className="hero-sub anim-3">
-              Mapeamos, documentamos e otimizamos suas operações para que
-              você pare de apagar incêndios e comece a escalar com controle.
+              Toda empresa chega num ponto em que o esforço já não gera
+              resultado proporcional. A EJEP entra exatamente aí — com
+              método, diagnóstico e um plano que funciona na prática.
             </p>
 
             <div className="hero-metrics anim-4">
@@ -58,12 +59,19 @@ export default function Home() {
           <div className="quiz-panel anim-3">
             <div className="quiz-intro-header">
               <span className="quiz-intro-label">Diagnóstico gratuito</span>
-              <span className="quiz-intro-badge">2 min</span>
+              <span className="quiz-intro-badge">≈ 2 min</span>
             </div>
-            <p className="quiz-intro-text">
-              7 perguntas. Sem compromisso. Descubra o que está travando
-              o crescimento da sua operação.
+            <p className="quiz-intro-title">
+              Descubra o que está<br />travando sua empresa.
             </p>
+            <p className="quiz-intro-sub">
+              Responda 7 perguntas rápidas e nossa equipe entra em contato
+              com um diagnóstico personalizado — sem compromisso.
+            </p>
+            <div className="quiz-start-cue">
+              <span className="quiz-start-arrow">↓</span>
+              <span className="quiz-start-text">Comece respondendo abaixo</span>
+            </div>
             <Quiz />
           </div>
 
