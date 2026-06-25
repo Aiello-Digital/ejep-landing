@@ -28,15 +28,14 @@ export default function Home() {
           <div>
 
             <h1 className="hero-headline anim-2">
-              Sua empresa tem<br />
-              potencial. Falta<br />
-              <em>clareza para escalar.</em>
+              Sua empresa cresce,<br />
+              mas os processos<br />
+              <em>não acompanham?</em>
             </h1>
 
             <p className="hero-sub anim-3">
-              Toda empresa chega num ponto em que o esforço já não gera
-              resultado proporcional. A EJEP entra exatamente aí: método,
-              diagnóstico e um plano que funciona na prática.
+              Mapeamos, documentamos e otimizamos suas operações para que
+              você pare de apagar incêndios e comece a escalar com controle.
             </p>
 
             <div className="hero-metrics anim-4">
